@@ -23,10 +23,12 @@ import java.util.*;
 * from there iterate upward to find first key with a smaller indentation and store
 * concatenate and return
 */
-public class YamlPathFinder extends AnAction {
+public class YamlPathFinder extends AnAction
+{
 
     @Override
-    public void actionPerformed(AnActionEvent e) {
+    public void actionPerformed(AnActionEvent e)
+    {
         // TODO: insert action logic here
 
         // get contents of file, store in a String
@@ -43,13 +45,60 @@ public class YamlPathFinder extends AnAction {
 
         String[] pair = getKey(fileText, lineStartPosition);
 
-        String path = getPath(pair, textArray);
+        int tabSize = getTabSize(textArray);
+
+        String path = getPath(pair, textArray, tabSize);
 
         // copies to the clipboard
         StringSelection selection = new StringSelection(path);
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         clipboard.setContents(selection, selection);
 
+    }
+
+    public static int getTabSize(String[] textArray)
+    {
+        int[] tabSizes = new int[10];
+        int currTab;
+        int index = 0;
+
+        for(int i = 0; i < textArray.length; i++)
+        {
+            currTab = findIndent(textArray[i]);
+
+            if(!hasNum(currTab, tabSizes))
+            {
+                tabSizes[index] = currTab;
+                index++;
+            }
+        }
+
+        System.out.println(Arrays.toString(tabSizes));
+
+
+        for(int j = 10; j > 0; j--)
+        {
+            for(int k = 0; k < tabSizes.length; k++)
+            {
+
+            }
+        }
+
+        /*
+        * collect the indentation sizes
+        * try dividing them by a range of numbers while true
+        * can throw error if no common denominator found */
+        return 2;
+    }
+
+    public static boolean hasNum(int num, int[] numArray)
+    {
+        for(int i = 0; i < numArray.length; i++)
+        {
+            if(numArray[i] == num) return true;
+        }
+
+        return false;
     }
 
     public static String[] getKey(String fileText, int charPosition)
@@ -81,7 +130,7 @@ public class YamlPathFinder extends AnAction {
      * @param textArray the lines in the file to search through to find the key
      * @return the concatenated path to key
      */
-    public static String getPath(String[] pair, String[] textArray)
+    public static String getPath(String[] pair, String[] textArray, int tabSize)
     {
         String key = pair[0];
         int lineNumber = Integer.parseInt(pair[1]);
@@ -89,14 +138,14 @@ public class YamlPathFinder extends AnAction {
         String[] tempArray = Arrays.copyOfRange(textArray, 0, lineNumber);
 
         int lineIndent = findIndent(textArray[lineNumber]);
-        String[] pathBuilder = new String[(lineIndent/2)];
+        String[] pathBuilder = new String[(lineIndent/tabSize)];
         pathBuilder[pathBuilder.length-1] = pair[0];
 
         for(int i = tempArray.length - 1; i > 0; i--)
         {
             if(tempArray[i].endsWith(":") && findIndent(tempArray[i]) < lineIndent)
             {
-                int currentIndex = (findIndent(tempArray[i])/2) - 1;
+                int currentIndex = (findIndent(tempArray[i])/tabSize) - 1;
 
                 if(pathBuilder[currentIndex] == null)
                 {
@@ -115,7 +164,6 @@ public class YamlPathFinder extends AnAction {
         }
 
         System.out.println(path);
-
 
         return path;
     }
